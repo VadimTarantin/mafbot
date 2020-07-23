@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %p %C{1.} [%t] %m%n"/>
+        </Console>
+
+
+        <RollingFile name="FILE_ERRORS" fileName="logs\mafbot\errors.log"
+                     filePattern="logs\mafbot\old\$${date:yyyy-MM}\app-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+
+        <RollingFile name="FILE_DEBUG" fileName="logs\mafbot\debug.log"
+                     filePattern="logs\mafbot\old\$${date:yyyy-MM}\app-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="FILE_ERRORS" additivity="false">
+            <AppenderRef ref="FILE_ERRORS"/>
+        </Logger>
+        <Logger name="FILE_DEBUG" additivity="false">
+            <AppenderRef ref="FILE_DEBUG"/>
+        </Logger>
+
+        <!-- Root Logger -->
+        <Root level="INFO">
+            <AppenderRef ref="CONSOLE" level="INFO"/>
+            <AppenderRef ref="FILE_ERRORS" level="ERROR"/>
+            <AppenderRef ref="FILE_DEBUG" level="DEBUG"/>
+        </Root>
+    </Loggers>
+</Configuration>
