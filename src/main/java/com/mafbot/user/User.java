@@ -1,13 +1,24 @@
 package com.mafbot.user;
 
+import com.mafbot.role.Role;
+
 import java.util.Objects;
 
+/**
+ * Представление пользователя в боте.
+ */
 public class User {
     private Long chatIdPerson;
     private String name;
+    private Role role;
 
     public User(Long chatIdPerson) {
         this.chatIdPerson = chatIdPerson;
+    }
+
+    public User(Long chatIdPerson, String name) {
+        this.chatIdPerson = chatIdPerson;
+        this.name = name;
     }
 
     public Long getChatIdPerson() {
@@ -24,6 +35,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     @Override

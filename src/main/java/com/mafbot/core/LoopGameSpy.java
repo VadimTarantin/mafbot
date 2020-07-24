@@ -19,14 +19,14 @@ public class LoopGameSpy extends Thread {
      */
     @Override
     public void run() {
+        String message = "Для старта новой игры наберите /старт. Для регистрации в игре /рег." +
+                " Список игроков: /лист. Узнать свою роль: /роль";
         log.info("Успешно запущен основной цикл '{}'", getName());
-        outgoingSender.sendInCommonChannel("Бот находится в режиме ожидания. Для старта новой игры наберите /рег");
-
         while (!isInterrupted()) {
             try {
+                outgoingSender.sendInCommonChannel(message);
+                log.info(message);
                 Thread.sleep(60000L);
-//                outgoingSender.sendInCommonChannel("Общее сообщение по таймеру");
-                log.info("Общее сообщение по таймеру логирование");
             } catch (InterruptedException e) {
                 log.warn("Основной цикл прерван!", e);
                 interrupt();

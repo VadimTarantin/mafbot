@@ -14,39 +14,37 @@ public class MainGameLoop extends Thread {
 
     private static final long REGISTRATION_TIME_AMOUNT = 1 * 60 * 1000;
 
-    private List<User> users;
+    private List<User> usersInStartGame;
+    private List<User> usersAliveInCurrentGame;
     private OutgoingSender outgoingSender;
 
     public MainGameLoop(OutgoingSender outgoingSender) {
         this.outgoingSender = outgoingSender;
-        users = new ArrayList<>();
+        usersInStartGame = new ArrayList<>();
+        usersAliveInCurrentGame = new ArrayList<>();
     }
 
     /**
      * Добавляет пользователя в список играющих, если его там еще нет.
      * @param user
-     * @return номер, под которым игрок был зарегистрирован.
+     * @return номер, под которым игрок зарегистрирован в игре.
      */
     public int addUser(User user) {
         if (!isUserInGame(user)) {
-            users.add(user);
-            return users.size() + 1;
+            usersAliveInCurrentGame.add(user);
+            return usersAliveInCurrentGame.size() + 1;
         }
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getChatIdPerson().compareTo(user.getChatIdPerson()) == 0) {
+        for (int i = 0; i < usersAliveInCurrentGame.size(); i++) {
+            if (usersAliveInCurrentGame.get(i).getChatIdPerson().compareTo(user.getChatIdPerson()) == 0) {
                 return i + 1;
             }
         }
         throw new RuntimeException(String.format("Пользователя с id = '%s' нет в списке %s, но этого быть не должно!",
-                user.getChatIdPerson(), users));
-    }
-
-    public List<User> getUsers() {
-        return users;
+                user.getChatIdPerson(), usersAliveInCurrentGame));
     }
 
     public boolean isUserInGame(User user) {
-        return users.contains(user);
+        return usersAliveInCurrentGame.contains(user);
     }
 
     @Override
@@ -56,7 +54,7 @@ public class MainGameLoop extends Thread {
         log.info("Начинается регистрация в игру №{}", gameNumber);
         registrationPhase();
         log.info("Окончена регистрация в игру №{}", gameNumber);
-        log.info("Начинается геренация и раздача ролей в игре №{}", gameNumber);
+        log.info("Начинается генерация и раздача ролей в игре №{}", gameNumber);
         generateRoles();
         log.info("Окончена генерация и раздача ролей в игре №{}", gameNumber);
         log.info("Начинается основной цикл ночь-день в игре №{}", gameNumber);
@@ -64,6 +62,7 @@ public class MainGameLoop extends Thread {
         log.info("Прерван основной цикл ночь-день в игре №{}", gameNumber);
         finishGame();
         log.info("Окончена игра №{}", gameNumber);
+        postFinishAction();
     }
 
     private void registrationPhase() {
@@ -82,14 +81,58 @@ public class MainGameLoop extends Thread {
     }
 
     private void generateRoles() {
-        outgoingSender.sendInCommonChannel("Здесь будут генерироваться роли и раздаваться зарегистрированным игрокам");
+        BeanRepository.getInstance().getGeneratorRoleService().generateRoles(usersAliveInCurrentGame);
+        usersInStartGame = new ArrayList<>(usersAliveInCurrentGame);
     }
 
     private void nightDayPhase() {
         outgoingSender.sendInCommonChannel("Здесь будет цикл ночь-день");
+        try {
+            Thread.sleep(30000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        outgoingSender.sendInCommonChannel("Цикл ночь-день окончен!");
     }
 
     private void finishGame() {
-        outgoingSender.sendInCommonChannel("Это окончание игры");
+        int gameNumber = BeanRepository.getInstance().getStatisticsService().getGameNumber();
+        String answer = String.format("Игра №%s завершена! Участвовали: %s", gameNumber, getUsersListInGame());
+        outgoingSender.sendInCommonChannel(answer);
+    }
+
+    private void postFinishAction() {
+        int gameNumber = BeanRepository.getInstance().getStatisticsService().getGameNumber();
+        for (User user : usersInStartGame) {
+            user.setRole(null);
+        }
+
+        for (User user : usersAliveInCurrentGame) {
+            user.setRole(null);
+        }
+
+        usersAliveInCurrentGame.clear();
+        usersInStartGame.clear();
+        log.info("После игры №{} очищены списки игроков. У игроков обнулены роли", gameNumber);
+    }
+
+    /**
+     * @return "В игре: 1: firstName, 2: secondName"
+     */
+    public String getUsersListInGame() {
+        StringBuilder result = new StringBuilder();
+        if (usersAliveInCurrentGame.isEmpty()) {
+            result.append("В игре никого нет!");
+            return result.toString();
+        }
+        result.append("В игре: ");
+        for (int i = 0; i < usersAliveInCurrentGame.size(); i++) {
+            result.append(i + 1).append(": ").append(usersAliveInCurrentGame.get(i).getName()).append(", ");
+        }
+
+        if (result.length() > 2) {
+            result.delete(result.length() - 2, result.length());
+        }
+        return result.toString();
     }
 }
