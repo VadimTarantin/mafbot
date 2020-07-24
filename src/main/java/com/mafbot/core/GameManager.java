@@ -23,8 +23,8 @@ public class GameManager {
     }
 
     public void sendPlayersList(Long chatId) {
-        if (mainGameLoop == null) {
-            String answer = "В игре никого нет! Вы можете запустить новую игру командой /рег";
+        if (mainGameLoop == null || GameStatus.AWAITING == mainGameLoop.getGameStatus()) {
+            String answer = "В игре никого нет! Вы можете запустить новую игру командой /start";
             outgoingSender.sendDirectly(chatId, answer);
         } else if (GameStatus.AWAITING != mainGameLoop.getGameStatus()) {
             String answer = String.format("В игре №%s: %s",

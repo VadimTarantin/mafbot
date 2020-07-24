@@ -100,6 +100,10 @@ public class MainGameLoop extends Thread {
 
     private void generateRoles() {
         BeanRepository.getInstance().getGeneratorRoleService().generateRoles(usersAliveInCurrentGame);
+        copyUsersInStartingListGame();
+    }
+
+    void copyUsersInStartingListGame() {
         usersInStartGame = new ArrayList<>(usersAliveInCurrentGame);
     }
 
@@ -116,7 +120,7 @@ public class MainGameLoop extends Thread {
 
     private void finishGame() {
         int gameNumber = BeanRepository.getInstance().getStatisticsService().getGameNumber();
-        String answer = String.format("Игра №%s завершена! Участвовали: %s", gameNumber, getUsersListInGame());
+        String answer = String.format("Игра №%s завершена! Участвовали: %s", gameNumber, getUsersListInStartGameWithRoles());
         outgoingSender.sendInCommonChannel(answer);
     }
 
@@ -156,6 +160,24 @@ public class MainGameLoop extends Thread {
         if (result.length() > 2) {
             result.delete(result.length() - 2, result.length());
         }
+        return result.toString();
+    }
+
+    /**
+     * @return "1: firstName - комиссар Каттани, 2: secondName - Мафиози 1"
+     */
+    public String getUsersListInStartGameWithRoles() {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < usersInStartGame.size(); i++) {
+            result.append(i + 1).append(": ").append(usersAliveInCurrentGame.get(i).getName())
+                    .append(" - ").append(usersAliveInCurrentGame.get(i).getRole())
+                    .append(", ");
+        }
+
+        if (result.length() > 2) {
+            result.delete(result.length() - 2, result.length());
+        }
+
         return result.toString();
     }
 }

@@ -47,10 +47,19 @@ public class IncomingMessageManagerImpl implements IncomingMessageManager {
         } else if (Command.START.name.equalsIgnoreCase(incomingMessage) || Command.START_ALT.name.equalsIgnoreCase(incomingMessage)) {
             BeanRepository.getInstance().getGameManager().startGame(currentUser);
         } else if (Command.ROLE.name.equalsIgnoreCase(incomingMessage) || Command.ROLE_ALT.name.equalsIgnoreCase(incomingMessage)) {
-            String answer = String.format("%s, ваша роль - %s!", currentUser.getName(), currentUser.getRole().getName());
-            outgoingSender.sendDirectly(chatId, answer);
+            doRoleCommand(currentUser);
         } else if (Command.LIST.name.equalsIgnoreCase(incomingMessage) || Command.LIST_ALT.name.equalsIgnoreCase(incomingMessage)) {
             BeanRepository.getInstance().getGameManager().sendPlayersList(chatId);
         }
+    }
+
+    private void doRoleCommand(User currentUser) {
+        String answer;
+        if (currentUser.hasRole()) {
+            answer = String.format("%s, ваша роль - %s!", currentUser.getName(), currentUser.getRole().getName());
+        } else {
+            answer = String.format("%s, у вас нет роли!", currentUser.getName());
+        }
+        outgoingSender.sendDirectly(currentUser.getChatIdPerson(), answer);
     }
 }

@@ -1,6 +1,8 @@
 package com.mafbot.core;
 
 import com.mafbot.message.outgoing.OutgoingSender;
+import com.mafbot.role.Kattani;
+import com.mafbot.role.Mafia;
 import com.mafbot.user.User;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,6 +43,24 @@ public class MainGameLoopTest {
 
         String actual = mainGameLoop.getUsersListInGame();
         String expected = "В игре: 1: firstName, 2: secondName";
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetUsersListInStartGameWithRolesWhenTwoPlayers() {
+        User firstUser = new User(112L, "firstName");
+        firstUser.setRole(new Kattani());
+
+        User secondUser = new User(298L, "secondName");
+        secondUser.setRole(new Mafia(1));
+
+        mainGameLoop.addUser(firstUser);
+        mainGameLoop.addUser(secondUser);
+        mainGameLoop.copyUsersInStartingListGame();
+
+        String actual = mainGameLoop.getUsersListInStartGameWithRoles();
+        String expected = "1: firstName - комиссар Каттани, 2: secondName - Мафиози 1";
 
         Assert.assertEquals(expected, actual);
     }

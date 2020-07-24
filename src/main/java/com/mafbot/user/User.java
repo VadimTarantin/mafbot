@@ -45,6 +45,10 @@ public class User {
         this.role = role;
     }
 
+    public boolean hasRole() {
+        return role != null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
