@@ -109,13 +109,10 @@ public class MainGameLoop extends Thread {
 
     private void nightDayPhase() {
         gameStatus = GameStatus.IN_PROGRESS;
-        outgoingSender.sendInCommonChannel("Здесь будет цикл ночь-день");
-        try {
-            Thread.sleep(30000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        outgoingSender.sendInCommonChannel("Цикл ночь-день окончен!");
+        outgoingSender.sendInCommonChannel("Начало игры");
+        new DayNightLoop(usersAliveInCurrentGame, outgoingSender)
+                .doLoop();
+        outgoingSender.sendInCommonChannel("Определена победа!");
     }
 
     private void finishGame() {
@@ -169,8 +166,8 @@ public class MainGameLoop extends Thread {
     public String getUsersListInStartGameWithRoles() {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < usersInStartGame.size(); i++) {
-            result.append(i + 1).append(": ").append(usersAliveInCurrentGame.get(i).getName())
-                    .append(" - ").append(usersAliveInCurrentGame.get(i).getRole())
+            result.append(i + 1).append(": ").append(usersInStartGame.get(i).getName())
+                    .append(" - ").append(usersInStartGame.get(i).getRole())
                     .append(", ");
         }
 
