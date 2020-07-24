@@ -2,6 +2,7 @@ package com.mafbot;
 
 import com.mafbot.initialization.BeanRepository;
 import com.mafbot.initialization.MafTelegramBotPropertiesHolder;
+import com.mafbot.message.incoming.IncomingMessageManager;
 import com.mafbot.message.outgoing.OutgoingSender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,10 +14,12 @@ public class MafTelegramBot extends TelegramLongPollingBot {
     private static final Logger log = LogManager.getLogger(MafTelegramBot.class);
 
     private OutgoingSender outgoingSender;
+    private IncomingMessageManager incomingMessageManager;
 
     public MafTelegramBot() {
         outgoingSender = BeanRepository.getInstance().getOutgoingSender();
         outgoingSender.setSender(this);
+        incomingMessageManager = BeanRepository.getInstance().getIncomingMessageManager();
     }
 
     @Override
@@ -36,16 +39,6 @@ public class MafTelegramBot extends TelegramLongPollingBot {
         String incomingMessageText = incomingMessage.getText();
         log.info("Получено сообщение от пользователя с id='{}': '{}'", chatId, incomingMessageText);
 
-        String message = "Ваш id: '" + chatId +"', ваше сообщение: '" + incomingMessageText + "'";
-
-        outgoingSender.sendDirectly(chatId, message);
-        sendMessageInCommonChannel(chatId, incomingMessage.getText());
+        incomingMessageManager.handleIncomingMessage(chatId, incomingMessageText);
     }
-
-    private void sendMessageInCommonChannel(Long chatIdPerson, String incomingFromPersonMessage) {
-        String forCommonAnswer = "От пользователя с id = '" + chatIdPerson + "' получено сообщение '"
-                + incomingFromPersonMessage + "'!";
-        outgoingSender.sendInCommonChannel(forCommonAnswer);
-    }
-
 }

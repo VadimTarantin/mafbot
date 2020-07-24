@@ -27,7 +27,7 @@ public class OutgoingSenderImpl implements OutgoingSender {
             sender.execute(answer);
             log.info("Успешно отправлено сообщение пользователю с id='{}': '{}'", answer.getChatId(), answer.getText());
         } catch (TelegramApiException e) {
-            log.warn("Не удалось отправить сообщение пользователю с id='{}': '{}'", answer.getChatId(), answer.getText());
+            log.warn("Не удалось отправить сообщение пользователю с id='{}': '{}'", answer.getChatId(), answer.getText(), e);
         }
     }
 
@@ -41,7 +41,7 @@ public class OutgoingSenderImpl implements OutgoingSender {
             sender.execute(answer);
             log.info("Успешно отправлено сообщение в общий канал с id='{}': '{}'", answer.getChatId(), answer.getText());
         } catch (TelegramApiException e) {
-            log.warn("Не удалось отправить сообщение в общий канал с id='{}': '{}'", answer.getChatId(), answer.getText());
+            log.warn("Не удалось отправить сообщение в общий канал с id='{}': '{}'", answer.getChatId(), answer.getText(), e);
         }
     }
 }
