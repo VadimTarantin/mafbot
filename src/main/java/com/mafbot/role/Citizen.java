@@ -1,6 +1,6 @@
 package com.mafbot.role;
 
-public class Citizen implements Role {
+public class Citizen extends BaseRole {
     public static final String ROLE_NAME = "Мирный житель";
 
     @Override

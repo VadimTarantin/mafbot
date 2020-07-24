@@ -18,13 +18,13 @@ public class UserServiceImpl implements UserService {
         Long userChatId = incomingData.getChatId();
         if (activeUsers.containsKey(userChatId)) {
             User result = activeUsers.get(userChatId);
-            log.info("Пользователь {} c chatId={} взят из кэша", result.getName(), result.getChatIdPerson());
+            log.debug("Пользователь {} c chatId={} взят из кэша", result.getName(), result.getChatIdPerson());
             return result;
         }
 
         User result = new User(userChatId, incomingData.getUserName());
         activeUsers.put(userChatId, result);
-        log.info("Пользователь {} с chatId={} положен в кэш", result.getName(), result.getChatIdPerson());
+        log.debug("Пользователь {} с chatId={} положен в кэш", result.getName(), result.getChatIdPerson());
         return result;
     }
 

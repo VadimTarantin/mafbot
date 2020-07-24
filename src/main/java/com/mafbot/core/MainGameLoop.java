@@ -14,14 +14,24 @@ public class MainGameLoop extends Thread {
 
     private static final long REGISTRATION_TIME_AMOUNT = 1 * 60 * 1000;
 
-    private List<User> usersInStartGame;
-    private List<User> usersAliveInCurrentGame;
+    private List<User> usersInStartGame; //игроки, которые были на момент старта игры
+    private List<User> usersAliveInCurrentGame; //игроки, которые сейчас живы в игре
     private OutgoingSender outgoingSender;
+
+    private GameStatus gameStatus;
 
     public MainGameLoop(OutgoingSender outgoingSender) {
         this.outgoingSender = outgoingSender;
         usersInStartGame = new ArrayList<>();
         usersAliveInCurrentGame = new ArrayList<>();
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
+    }
+
+    public void setGameStatus(GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
     }
 
     /**
@@ -32,7 +42,7 @@ public class MainGameLoop extends Thread {
     public int addUser(User user) {
         if (!isUserInGame(user)) {
             usersAliveInCurrentGame.add(user);
-            return usersAliveInCurrentGame.size() + 1;
+            return getPlayerNumber(user);
         }
         for (int i = 0; i < usersAliveInCurrentGame.size(); i++) {
             if (usersAliveInCurrentGame.get(i).getChatIdPerson().compareTo(user.getChatIdPerson()) == 0) {
@@ -45,6 +55,15 @@ public class MainGameLoop extends Thread {
 
     public boolean isUserInGame(User user) {
         return usersAliveInCurrentGame.contains(user);
+    }
+
+    public int getPlayerNumber(User user) {
+        for (int i = 0; i < usersAliveInCurrentGame.size(); i++) {
+            if (usersAliveInCurrentGame.get(i).getChatIdPerson().equals(user.getChatIdPerson())) {
+                return i + 1;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -66,15 +85,14 @@ public class MainGameLoop extends Thread {
     }
 
     private void registrationPhase() {
-        while (!isInterrupted()) {
-            try {
-                Thread.sleep(REGISTRATION_TIME_AMOUNT);
-                interrupt();
-            } catch (InterruptedException e) {
-                log.warn("Неожиданное прерывание фазы регистрации в игру номер {}",
-                        BeanRepository.getInstance().getStatisticsService().getGameNumber(), e);
-            }
+        gameStatus = GameStatus.REGISTRATION;
+        try {
+            Thread.sleep(REGISTRATION_TIME_AMOUNT);
+        } catch (InterruptedException e) {
+            log.warn("Неожиданное прерывание фазы регистрации в игру номер {}",
+                    BeanRepository.getInstance().getStatisticsService().getGameNumber(), e);
         }
+
         String answer = String.format("Регистрация в игру №%s завершена!",
                 BeanRepository.getInstance().getStatisticsService().getGameNumber());
         outgoingSender.sendInCommonChannel(answer);
@@ -86,6 +104,7 @@ public class MainGameLoop extends Thread {
     }
 
     private void nightDayPhase() {
+        gameStatus = GameStatus.IN_PROGRESS;
         outgoingSender.sendInCommonChannel("Здесь будет цикл ночь-день");
         try {
             Thread.sleep(30000L);
@@ -114,6 +133,10 @@ public class MainGameLoop extends Thread {
         usersAliveInCurrentGame.clear();
         usersInStartGame.clear();
         log.info("После игры №{} очищены списки игроков. У игроков обнулены роли", gameNumber);
+
+        gameStatus = GameStatus.AWAITING;
+        String answer = "Бот снова в режиме ожидания!";
+        outgoingSender.sendInCommonChannel(answer);
     }
 
     /**

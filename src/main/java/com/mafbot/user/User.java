@@ -60,9 +60,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "chatIdPerson=" + chatIdPerson +
-                ", name='" + name + '\'' +
-                '}';
+        return "chatIdPerson=" + chatIdPerson +
+                ", name='" + name;
     }
 }

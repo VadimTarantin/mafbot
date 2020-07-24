@@ -41,7 +41,7 @@ public class GeneratorRoleServiceImpl implements GeneratorRoleService {
 
         Collections.shuffle(result);
 
-        log.info("Роли для количества игроков {} в игре №{} успешно сгенерированы: {}",gameNumber, amount, result);
+        log.info("Роли для количества игроков {} в игре №{} успешно сгенерированы: {}", amount, gameNumber, result);
         return result;
     }
 

@@ -41,7 +41,7 @@ public class MafTelegramBot extends TelegramLongPollingBot {
         String userName = incomingMessage.getFrom().getUserName();
 
         IncomingData incomingData = new IncomingData(chatId, userName, incomingMessageText);
-        log.info("Получено сообщение от пользователя с id='{}' и userName='{}': '{}'",
+        log.debug("Получено сообщение от пользователя с id='{}' и userName='{}': '{}'",
                 incomingData.getChatId(), incomingData.getUserName(), incomingData.getMessage());
 
         incomingMessageManager.handleIncomingMessage(incomingData);

@@ -1,16 +1,19 @@
 package com.mafbot.core;
 
+import com.mafbot.message.outgoing.OutgoingSender;
 import com.mafbot.user.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
 
 public class MainGameLoopTest {
     private MainGameLoop mainGameLoop;
 
     @Before
     public void setUp() {
-        mainGameLoop = new MainGameLoop(null); //toDo: подключить PowerMockito
+        OutgoingSender outgoingSender = PowerMockito.mock(OutgoingSender.class);
+        mainGameLoop = new MainGameLoop(outgoingSender);
     }
 
     @Test

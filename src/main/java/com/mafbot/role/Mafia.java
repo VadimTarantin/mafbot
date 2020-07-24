@@ -1,6 +1,6 @@
 package com.mafbot.role;
 
-public class Mafia implements Role {
+public class Mafia extends BaseRole {
     public static final String ROLE_NAME = "Мафиози";
     private int mafNumber;
 
@@ -15,6 +15,6 @@ public class Mafia implements Role {
 
     @Override
     public String getGreetingText() {
-        return "Теперь вы будете кидать народ на бабки, вы - злобный мафиози!";
+        return "Теперь ты будешь кидать народ на бабки, ты - злобный мафиози!";
     }
 }

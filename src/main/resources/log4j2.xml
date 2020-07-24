@@ -18,6 +18,17 @@
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
 
+        <RollingFile name="FILE_INFO" fileName="logs\mafbot\info.log"
+                     filePattern="logs\mafbot\old\$${date:yyyy-MM}\app-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
         <RollingFile name="FILE_DEBUG" fileName="logs\mafbot\debug.log"
                      filePattern="logs\mafbot\old\$${date:yyyy-MM}\app-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
@@ -34,14 +45,18 @@
         <Logger name="FILE_ERRORS" additivity="false">
             <AppenderRef ref="FILE_ERRORS"/>
         </Logger>
+        <Logger name="FILE_INFO" additivity="false">
+            <AppenderRef ref="FILE_INFO"/>
+        </Logger>
         <Logger name="FILE_DEBUG" additivity="false">
             <AppenderRef ref="FILE_DEBUG"/>
         </Logger>
 
         <!-- Root Logger -->
-        <Root level="INFO">
+        <Root level="DEBUG">
             <AppenderRef ref="CONSOLE" level="INFO"/>
             <AppenderRef ref="FILE_ERRORS" level="ERROR"/>
+            <AppenderRef ref="FILE_INFO" level="INFO"/>
             <AppenderRef ref="FILE_DEBUG" level="DEBUG"/>
         </Root>
     </Loggers>
