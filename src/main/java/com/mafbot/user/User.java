@@ -11,6 +11,7 @@ public class User {
     private Long chatIdPerson;
     private String name;
     private Role role;
+    private Order order;
 
     public User(Long chatIdPerson) {
         this.chatIdPerson = chatIdPerson;
@@ -43,6 +44,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public boolean hasRole() {

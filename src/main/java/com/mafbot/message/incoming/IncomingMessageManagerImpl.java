@@ -4,6 +4,7 @@ import com.mafbot.initialization.BeanRepository;
 import com.mafbot.initialization.MafTelegramBotPropertiesHolder;
 import com.mafbot.message.incoming.model.IncomingData;
 import com.mafbot.message.outgoing.OutgoingSender;
+import com.mafbot.user.Order;
 import com.mafbot.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,6 +51,8 @@ public class IncomingMessageManagerImpl implements IncomingMessageManager {
             doRoleCommand(currentUser);
         } else if (Command.LIST.name.equalsIgnoreCase(incomingMessage) || Command.LIST_ALT.name.equalsIgnoreCase(incomingMessage)) {
             BeanRepository.getInstance().getGameManager().sendPlayersList(chatId);
+        } else if (isDigitCommand(currentUser, incomingMessage)) {
+            processDigitCommand(currentUser, Integer.valueOf(incomingMessage));
         }
     }
 
@@ -61,5 +64,27 @@ public class IncomingMessageManagerImpl implements IncomingMessageManager {
             answer = String.format("%s, у вас нет роли!", currentUser.getName());
         }
         outgoingSender.sendDirectly(currentUser.getChatIdPerson(), answer);
+    }
+
+    private boolean isDigitCommand(User currentUser, String incomingMessage) {
+        Order order = currentUser.getOrder();
+        if (order == null) {
+            return false;
+        }
+
+        try {
+            Integer potentialTarget = Integer.valueOf(incomingMessage);
+            if (potentialTarget >= order.getMinNumberPotentialTarget() && potentialTarget <= order.getMaxNumberPotentialTarget()) {
+                return true;
+            }
+            return false;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private void processDigitCommand(User currentUser, Integer digit) {
+        currentUser.getOrder().setTarget(digit);
+        outgoingSender.sendDirectly(currentUser.getChatIdPerson(), "Будет исполнено!");
     }
 }

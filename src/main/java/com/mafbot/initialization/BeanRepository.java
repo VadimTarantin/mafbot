@@ -7,6 +7,8 @@ import com.mafbot.message.outgoing.OutgoingSender;
 import com.mafbot.message.outgoing.OutgoingSenderImpl;
 import com.mafbot.service.role.GeneratorRoleService;
 import com.mafbot.service.role.GeneratorRoleServiceImpl;
+import com.mafbot.service.role.RoleService;
+import com.mafbot.service.role.RoleServiceImpl;
 import com.mafbot.service.user.UserService;
 import com.mafbot.service.user.UserServiceImpl;
 import com.mafbot.statistic.StatisticServiceImpl;
@@ -21,6 +23,7 @@ public class BeanRepository {
     private StatisticsService statisticsService;
     private UserService userService;
     private GeneratorRoleService generatorRoleService;
+    private RoleService roleService;
 
     private BeanRepository() {
         outgoingSender = new OutgoingSenderImpl();
@@ -31,6 +34,7 @@ public class BeanRepository {
         statisticsService = new StatisticServiceImpl();
         userService = new UserServiceImpl();
         generatorRoleService = new GeneratorRoleServiceImpl(outgoingSender);
+        roleService = new RoleServiceImpl();
     }
 
     public static BeanRepository getInstance() {
@@ -59,5 +63,9 @@ public class BeanRepository {
 
     public GeneratorRoleService getGeneratorRoleService() {
         return generatorRoleService;
+    }
+
+    public RoleService getRoleService() {
+        return roleService;
     }
 }

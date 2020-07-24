@@ -110,7 +110,8 @@ public class MainGameLoop extends Thread {
     private void nightDayPhase() {
         gameStatus = GameStatus.IN_PROGRESS;
         outgoingSender.sendInCommonChannel("Начало игры");
-        new DayNightLoop(usersAliveInCurrentGame, outgoingSender)
+        new DayNightLoop(usersAliveInCurrentGame, outgoingSender, this,
+                BeanRepository.getInstance().getRoleService())
                 .doLoop();
         outgoingSender.sendInCommonChannel("Определена победа!");
     }

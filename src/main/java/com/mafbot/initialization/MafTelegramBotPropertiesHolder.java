@@ -15,6 +15,7 @@ public class MafTelegramBotPropertiesHolder {
     private static final String BOT_NAME_KEY = "bot.name";
     private static final String BOT_TOKEN_KEY = "bot.token";
     private static final String CHANNEL_ID_COMMON_KEY = "channel.id.common";
+    private static final String CHANNEL_ID_COMMON_KEY = "channel.id.common";
     private final Properties prop = new Properties();
 
     private MafTelegramBotPropertiesHolder() {
