@@ -2,6 +2,7 @@ package com.mafbot;
 
 import com.mafbot.initialization.BeanRepository;
 import com.mafbot.initialization.MafTelegramBotPropertiesHolder;
+import com.mafbot.message.incoming.model.IncomingData;
 import com.mafbot.message.incoming.IncomingMessageManager;
 import com.mafbot.message.outgoing.OutgoingSender;
 import org.apache.logging.log4j.LogManager;
@@ -37,8 +38,12 @@ public class MafTelegramBot extends TelegramLongPollingBot {
         Message incomingMessage = update.getMessage();
         Long chatId = incomingMessage.getChatId();
         String incomingMessageText = incomingMessage.getText();
-        log.info("Получено сообщение от пользователя с id='{}': '{}'", chatId, incomingMessageText);
+        String userName = incomingMessage.getFrom().getUserName();
 
-        incomingMessageManager.handleIncomingMessage(chatId, incomingMessageText);
+        IncomingData incomingData = new IncomingData(chatId, userName, incomingMessageText);
+        log.info("Получено сообщение от пользователя с id='{}' и userName='{}': '{}'",
+                incomingData.getChatId(), incomingData.getUserName(), incomingData.getMessage());
+
+        incomingMessageManager.handleIncomingMessage(incomingData);
     }
 }

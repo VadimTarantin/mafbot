@@ -1,6 +1,7 @@
 package com.mafbot.message.incoming;
 
 import com.mafbot.initialization.BeanRepository;
+import com.mafbot.message.incoming.model.IncomingData;
 import com.mafbot.message.outgoing.OutgoingSender;
 
 public class IncomingMessageManagerImpl implements IncomingMessageManager {
@@ -13,7 +14,11 @@ public class IncomingMessageManagerImpl implements IncomingMessageManager {
     }
 
     @Override
-    public void handleIncomingMessage(Long chatId, String incomingMessage) {
+    public void handleIncomingMessage(IncomingData incomingData) {
+        String incomingMessage = incomingData.getMessage();
+        Long chatId = incomingData.getChatId();
+        String userName = incomingData.getUserName();
+
         if ("/рег".equalsIgnoreCase(incomingMessage) || "/reg".equalsIgnoreCase(incomingMessage)) {
             BeanRepository.getInstance().getGameManager().startGame(chatId);
         } else if ("/регми".equalsIgnoreCase(incomingMessage) || "/regme".equalsIgnoreCase(incomingMessage)) {
