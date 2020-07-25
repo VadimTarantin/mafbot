@@ -35,7 +35,7 @@ public class Kattani extends BaseRole {
         result.setMessageAboutResultForCommonChannel(messageInCommonChannel);
 
         String messageToInitiator = String.format("По данным разведки, %s - это %s!",
-                target.getName(), target.getName());
+                target.getName(), target.getRole().getName());
         result.setMessageAboutResultForOrdered(messageToInitiator);
 
         return result;

@@ -54,6 +54,7 @@ public class DayNightLoop {
 
     private void doNight() throws InterruptedException {
         outgoingSender.sendInCommonChannel(String.format("Наступает %s ночь. Город засыпает", ++nightNumber));
+        outgoingSender.sendInCommonChannel(mainGameLoop.getUsersListInGame());
         sendMessageAboutOrdersToPlayers();
 
         for (int i = 0; i < 4; i++) {
@@ -107,7 +108,7 @@ public class DayNightLoop {
             Order order = user.getOrder();
             if (order.wasOrder()) {
                 Integer target = order.getTarget();
-                User targetUser = usersWithActiveRoles.get(target - 1);
+                User targetUser = usersAliveInCurrentGame.get(target - 1);
                 ProcessResult result = user.getRole().doActionTo(new Target(targetUser.getRole(), targetUser.getName()));
                 outgoingSender.sendInCommonChannel(result.getMessageAboutResultForCommonChannel());
                 if (result.existMessageAboutResultForOrdered()) {

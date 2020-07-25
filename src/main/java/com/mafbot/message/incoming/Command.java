@@ -34,6 +34,15 @@ public enum Command {
     }
 
     public static boolean isCommandAvailable(String candidate) {
-        return availableCommands.contains(candidate);
+        return availableCommands.contains(candidate) || isDigit(candidate);
+    }
+
+    private static boolean isDigit(String candidate) {
+        try {
+            Integer.parseInt(candidate);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }
