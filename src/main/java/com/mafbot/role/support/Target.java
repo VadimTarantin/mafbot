@@ -1,22 +1,21 @@
 package com.mafbot.role.support;
 
 import com.mafbot.role.Role;
-import com.mafbot.user.User;
 
 public class Target {
     private Role role;
-    private User user;
+    private String name;
 
-    public Target(Role role, User user) {
+    public Target(Role role, String name) {
         this.role = role;
-        this.user = user;
+        this.name = name;
     }
 
     public Role getRole() {
         return role;
     }
 
-    public User getUser() {
-        return user;
+    public String getName() {
+        return name;
     }
 }

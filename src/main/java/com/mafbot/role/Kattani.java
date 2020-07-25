@@ -31,11 +31,11 @@ public class Kattani extends BaseRole {
         ProcessResult result = new ProcessResult();
         result.setTargetIsDied(false);
         String messageInCommonChannel = String.format("Комиссар Каттани не терял время и выяснил, кто на самом деле %s!",
-                target.getUser().getName());
+                target.getName());
         result.setMessageAboutResultForCommonChannel(messageInCommonChannel);
 
         String messageToInitiator = String.format("По данным разведки, %s - это %s!",
-                target.getUser().getName(), target.getUser().getName());
+                target.getName(), target.getName());
         result.setMessageAboutResultForOrdered(messageToInitiator);
 
         return result;

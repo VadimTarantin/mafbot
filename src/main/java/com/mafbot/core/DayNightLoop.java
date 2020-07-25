@@ -108,7 +108,7 @@ public class DayNightLoop {
             if (order.wasOrder()) {
                 Integer target = order.getTarget();
                 User targetUser = usersWithActiveRoles.get(target - 1);
-                ProcessResult result = user.getRole().doActionTo(new Target(targetUser.getRole(),targetUser));
+                ProcessResult result = user.getRole().doActionTo(new Target(targetUser.getRole(), targetUser.getName()));
                 outgoingSender.sendInCommonChannel(result.getMessageAboutResultForCommonChannel());
                 if (result.existMessageAboutResultForOrdered()) {
                     outgoingSender.sendDirectly(user.getChatIdPerson(), result.getMessageAboutResultForOrdered());

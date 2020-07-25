@@ -37,7 +37,7 @@ public class Mafia extends BaseRole {
         result.setTargetIsDied(true);
 
         String messageInCommonChannel = String.format("Мафия в этот раз решила пристрелить ни в чем ни повинного %s %s!",
-                target.getRole().getName(), target.getUser().getName());
+                target.getRole().getName(), target.getName());
         result.setMessageAboutResultForCommonChannel(messageInCommonChannel);
         return result;
     }
