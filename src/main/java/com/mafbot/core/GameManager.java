@@ -3,8 +3,12 @@ package com.mafbot.core;
 import com.mafbot.initialization.BeanRepository;
 import com.mafbot.message.outgoing.OutgoingSender;
 import com.mafbot.user.User;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GameManager {
+    private static final Logger log = LogManager.getLogger(GameManager.class);
+
     private MainGameLoop mainGameLoop;
     private OutgoingSender outgoingSender;
 
@@ -94,5 +98,11 @@ public class GameManager {
             return true;
         }
         return false;
+    }
+
+    public void processDigitCommand(User currentUser, Integer digit) {
+        if (mainGameLoop != null ) {
+            mainGameLoop.processGameInProcessCommand(currentUser, digit);
+        }
     }
 }

@@ -52,7 +52,7 @@ public class IncomingMessageManagerImpl implements IncomingMessageManager {
         } else if (Command.LIST.name.equalsIgnoreCase(incomingMessage) || Command.LIST_ALT.name.equalsIgnoreCase(incomingMessage)) {
             BeanRepository.getInstance().getGameManager().sendPlayersList(chatId);
         } else if (isDigitCommand(currentUser, incomingMessage)) {
-            processDigitCommand(currentUser, Integer.valueOf(incomingMessage));
+            BeanRepository.getInstance().getGameManager().processDigitCommand(currentUser, Integer.valueOf(incomingMessage));
         }
     }
 
@@ -81,10 +81,5 @@ public class IncomingMessageManagerImpl implements IncomingMessageManager {
         } catch (NumberFormatException e) {
             return false;
         }
-    }
-
-    private void processDigitCommand(User currentUser, Integer digit) {
-        currentUser.getOrder().setTarget(digit);
-        outgoingSender.sendDirectly(currentUser.getChatIdPerson(), "Будет исполнено!");
     }
 }

@@ -9,8 +9,7 @@ import com.mafbot.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class DayNightLoop {
     private static final Logger log = LogManager.getLogger(DayNightLoop.class);
@@ -20,6 +19,7 @@ public class DayNightLoop {
     private MainGameLoop mainGameLoop;
     private RoleService roleService;
 
+    private DayNightStatus dayNightStatus = DayNightStatus.UNKNOWN;
     private int nightNumber;
 
     public DayNightLoop(List<User> usersAliveInCurrentGame, OutgoingSender outgoingSender, MainGameLoop mainGameLoop,
@@ -33,10 +33,12 @@ public class DayNightLoop {
     void doLoop() {
         while (true) {
             try {
+                mainGameLoop.setDayNightStatus(DayNightStatus.NIGHT);
                 doNight();
                 if (isVictory()) {
                     break;
                 }
+                mainGameLoop.setDayNightStatus(DayNightStatus.DAY);
                 doDay();
                 if (isVictory()) {
                     break;
@@ -72,7 +74,15 @@ public class DayNightLoop {
     private void doDay() throws InterruptedException {
         outgoingSender.sendInCommonChannel("Наступает день, который покажет, кто кого недосчитался!");
         processOrders();
-        outgoingSender.sendInCommonChannel("Здесь будет голосование за повешение одного из игроков");
+        sendMessageAboutDayVoting();
+        for (int i = 0; i < 4; i++) {
+            Thread.sleep(25000L);
+            if (areAllPlayersDoneVote()) {
+                break;
+            }
+            outgoingSender.sendInCommonChannel("Не забудьте выбрать, кого пора обнулить!");
+        }
+        processDayVoting();
     }
 
     private void killUser(User user) {
@@ -97,6 +107,16 @@ public class DayNightLoop {
                 return false;
             }
         }
+        return true;
+    }
+
+    private boolean areAllPlayersDoneVote() {
+        for (User user : usersAliveInCurrentGame) {
+            if (!user.getOrder().wasOrder()) {
+                return false;
+            }
+        }
+        log.debug("Определено, что все проголосовали днем!");
         return true;
     }
 
@@ -129,5 +149,60 @@ public class DayNightLoop {
         }
 
         usersAliveInCurrentGame.removeAll(diedPlayers);
+    }
+
+    private void sendMessageAboutDayVoting() {
+        outgoingSender.sendInCommonChannel("Кто самое слабое звено? Выберите номер того, кого следует убить!");
+        outgoingSender.sendToUsersCommonText(usersAliveInCurrentGame, "Пора голововать!");
+        outgoingSender.sendToUsersAboutDayVotingText(usersAliveInCurrentGame, usersAliveInCurrentGame.size(), mainGameLoop.getUsersListInGame());
+    }
+
+    private void processDayVoting() {
+        //обработка дневного голосования
+        Map<Integer, Integer> votingResult = new HashMap<>(); //номер игрока из списка живых, количество голосов за него
+
+        for (User user : usersAliveInCurrentGame) {
+            Order order = user.getOrder();
+            if (order.wasOrder()) {
+                Integer target = order.getTarget(); //номер игрока цели
+                log.debug("Товарищ {} голосует за {}", user.getName(), target);
+                if (votingResult.containsKey(target)) {
+                    Integer lastAmount = votingResult.get(target);
+                    votingResult.put(target, lastAmount + 1);
+                } else {
+                    votingResult.put(target, 1);
+                }
+            }
+            user.setOrder(null);
+        }
+        log.debug("Результаты голосования: {}", votingResult);
+
+        //определение, за кого большинство и его убийство
+        Collection<Integer> votes = votingResult.values();
+        Set<Integer> unique = new HashSet<>(votes);
+        if (votes.size() != unique.size()) {
+            outgoingSender.sendInCommonChannel("Жители не смогли договориться о жертве!");
+            return;
+        }
+
+        //кого-то выбрали
+        int numberPlayerForKill = 0;
+        int amountVote = 0;
+        for (Integer playerNumber : votingResult.keySet()) {
+            Integer amountVoteForCurrentUser = votingResult.get(playerNumber);
+            if (amountVoteForCurrentUser > amountVote) {
+                amountVote = amountVoteForCurrentUser;
+                numberPlayerForKill = playerNumber;
+            }
+        }
+
+        log.debug("Определен номер игрока для повешения: {} (-1). Список игроков: {}",
+                numberPlayerForKill, usersAliveInCurrentGame);
+        User userForKull = usersAliveInCurrentGame.get(numberPlayerForKill - 1);
+
+        String message = String.format("Жители решили, что во всем виноват %s %s и повесили его!",
+                userForKull.getRole().getName(), userForKull.getName());
+        outgoingSender.sendInCommonChannel(message);
+        killUser(userForKull);
     }
 }

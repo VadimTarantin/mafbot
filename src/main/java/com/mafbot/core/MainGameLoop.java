@@ -19,6 +19,7 @@ public class MainGameLoop extends Thread {
     private OutgoingSender outgoingSender;
 
     private GameStatus gameStatus;
+    private DayNightStatus dayNightStatus = DayNightStatus.UNKNOWN;
 
     public MainGameLoop(OutgoingSender outgoingSender) {
         this.outgoingSender = outgoingSender;
@@ -26,12 +27,20 @@ public class MainGameLoop extends Thread {
         usersAliveInCurrentGame = new ArrayList<>();
     }
 
-    public GameStatus getGameStatus() {
+    public synchronized GameStatus getGameStatus() {
         return gameStatus;
     }
 
-    public void setGameStatus(GameStatus gameStatus) {
+    public synchronized void setGameStatus(GameStatus gameStatus) {
         this.gameStatus = gameStatus;
+    }
+
+    public synchronized DayNightStatus getDayNightStatus() {
+        return dayNightStatus;
+    }
+
+    public synchronized void setDayNightStatus(DayNightStatus dayNightStatus) {
+        this.dayNightStatus = dayNightStatus;
     }
 
     /**
@@ -120,6 +129,8 @@ public class MainGameLoop extends Thread {
         int gameNumber = BeanRepository.getInstance().getStatisticsService().getGameNumber();
         String answer = String.format("Игра №%s завершена! Участвовали: %s", gameNumber, getUsersListInStartGameWithRoles());
         outgoingSender.sendInCommonChannel(answer);
+        String winners = String.format("Оставшиеся в живых игроки: %s", getUsersListInGame());
+        outgoingSender.sendInCommonChannel(winners);
     }
 
     private void postFinishAction() {
@@ -144,7 +155,7 @@ public class MainGameLoop extends Thread {
     /**
      * @return "В игре: 1: firstName, 2: secondName"
      */
-    public String getUsersListInGame() {
+    public synchronized String getUsersListInGame() {
         StringBuilder result = new StringBuilder();
         if (usersAliveInCurrentGame.isEmpty()) {
             result.append("В игре никого нет!");
@@ -177,5 +188,43 @@ public class MainGameLoop extends Thread {
         }
 
         return result.toString();
+    }
+
+    public void processGameInProcessCommand(User currentUser, Integer digit) {
+        if (shouldBeProcessedAsNightCommand(currentUser)) {
+            log.debug("Команда {} игрока {} будет исполнена как ночная команда", digit, currentUser);
+            processNightCommands(currentUser, digit);
+        } else if (shouldBeProcessedAsDayCommand(currentUser)) {
+            log.debug("Команда {} игрока {} будет исполнена как дневная команда", digit, currentUser);
+            processDayCommands(currentUser, digit);
+        } else {
+            log.debug("Команда {} игрока {} будет исполнена как неизвестная команда", digit, currentUser);
+            processUnknownCommands(currentUser);
+        }
+    }
+
+    private void processNightCommands(User currentUser, Integer digit) {
+        currentUser.getOrder().setTarget(digit);
+        log.debug("Игрок {} выбирает ночную команду {}", currentUser.getName(), digit);
+        outgoingSender.sendDirectly(currentUser.getChatIdPerson(), "Будет исполнено!");
+    }
+
+    private void processDayCommands(User currentUser, Integer digit) {
+        currentUser.getOrder().setTarget(digit);
+        log.debug("Игрок {} выбирает дневную команду {}", currentUser.getName(), digit);
+        outgoingSender.sendDirectly(currentUser.getChatIdPerson(), "Будет исполнено!");
+    }
+
+    private void processUnknownCommands(User currentUser) {
+        log.debug("Игрок {} прислал неизвестную команду команду", currentUser.getName());
+        outgoingSender.sendDirectly(currentUser.getChatIdPerson(), "Неизвестная команда!");
+    }
+
+    private boolean shouldBeProcessedAsNightCommand(User currentUser) {
+        return DayNightStatus.NIGHT == dayNightStatus && usersAliveInCurrentGame.contains(currentUser);
+    }
+
+    private boolean shouldBeProcessedAsDayCommand(User currentUser) {
+        return DayNightStatus.DAY == dayNightStatus && usersAliveInCurrentGame.contains(currentUser);
     }
 }

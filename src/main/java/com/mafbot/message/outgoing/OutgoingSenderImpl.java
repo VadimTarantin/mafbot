@@ -64,4 +64,13 @@ public class OutgoingSenderImpl implements OutgoingSender {
             sendDirectly(user.getChatIdPerson(), text);
         }
     }
+
+    @Override
+    public void sendToUsersAboutDayVotingText(List<User> users, Integer maxNumberPotentialTarget, String usersInGame) {
+        for (User user : users) {
+            String message = String.format("Кого следует повесить? %s", usersInGame);
+            user.setOrder(new Order(maxNumberPotentialTarget));
+            sendDirectly(user.getChatIdPerson(), message);
+        }
+    }
 }

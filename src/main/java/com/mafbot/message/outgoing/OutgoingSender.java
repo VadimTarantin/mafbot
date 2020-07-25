@@ -11,4 +11,5 @@ public interface OutgoingSender {
     void sendInCommonChannel(String message);
     void sendToUsersRoleSpecificText(List<User> users, Integer maxNumberPotentialTarget);
     void sendToUsersCommonText(List<User> users, String text);
+    void sendToUsersAboutDayVotingText(List<User> users, Integer maxNumberPotentialTarget, String usersInGame);
 }
